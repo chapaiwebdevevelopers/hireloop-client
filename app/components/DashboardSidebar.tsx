@@ -10,6 +10,7 @@ import {
   BriefcaseBusiness,
   Users,
   Landmark,
+  PlusCircle,
 } from "lucide-react"
 import {
   Sidebar,
@@ -22,6 +23,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useSession } from "@/lib/auth-client"
+import Link from "next/link"
 
 const menuItemsByRole = {
   seeker: [
@@ -33,11 +35,12 @@ const menuItemsByRole = {
     { id: "settings", name: "Settings", url: "/dashboard/settings", icon: Settings },
   ],
   recruiter: [
-    { id: "dashboard", name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { id: "my-company", name: "My Company", url: "/dashboard/company", icon: Building2 },
-    { id: "manage-jobs", name: "Manage Jobs", url: "/dashboard/manage-jobs", icon: BriefcaseBusiness },
-    { id: "applications", name: "Applications", url: "/dashboard/applications", icon: FileText },
-    { id: "settings", name: "Settings", url: "/dashboard/settings", icon: Settings },
+    { id: "dashboard", name: "Dashboard", url: "/dashboard/recruiter", icon: LayoutDashboard },
+    { id: "my-company", name: "My Company", url: "/dashboard/recruiter/company", icon: Building2 },
+    { id: "add-jobs", name: "Add Jobs", url: "/dashboard/recruiter/jobs/new", icon: PlusCircle},
+    { id: "manage-jobs", name: "Manage Jobs", url: "/dashboard/recruiter/jobs", icon: BriefcaseBusiness },
+    { id: "applications", name: "Applications", url: "/dashboard/recruiter/applications", icon: FileText },
+    { id: "settings", name: "Settings", url: "/dashboard/recruiter/settings", icon: Settings },
   ],
   admin: [
     { id: "dashboard", name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -62,7 +65,7 @@ export function DashboardSidebar() {
           <SidebarMenu>
             {menuItemsByRole[role].map((item) => (
               <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton render={<a href={item.url} />}>
+                <SidebarMenuButton render={<Link href={item.url} />}>
                   <item.icon />
                   <span>{item.name}</span>
                 </SidebarMenuButton>

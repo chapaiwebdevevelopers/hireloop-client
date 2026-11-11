@@ -27,11 +27,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
-const navLinks = [
-  { label: "Browse Jobs", href: "/jobs" },
-  { label: "Company", href: "/company" },
-  { label: "Pricing", href: "/pricing" },
-]
 
 const initialLinks = [
   { label: "Sign In", href: "/sign-in" },
@@ -53,10 +48,19 @@ function Logo() {
 }
 
 export function Navbar() {
+
+
   const pathname = usePathname()
   const router = useRouter()
   const { data: session, isPending } = authClient.useSession()
   const user = session?.user
+
+    const navLinks = [
+  { label: "Browse Jobs", href: "/jobs" },
+  { label: "Company", href: "/company" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "dashboard", href: `/dashboard/${user?.role}` },
+]
 
   const handleSignOut = async () => {
     await authClient.signOut()
