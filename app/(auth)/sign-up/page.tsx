@@ -7,10 +7,11 @@ import { authClient } from "@/lib/auth-client"
 export default function SignUpPage() {
     const handleSignUp=async(payload: Record<string, FormDataEntryValue>)=>{    
       const { data, error } = await authClient.signUp.email({
-        email: String(payload.email ?? ""),
-        password: String(payload.password ?? ""),
-        name: String(payload.name ?? ""),
-        image: typeof payload.image === "string" ? payload.image : undefined,
+        email: payload.email as string,
+        password: payload.password as string,
+        name: payload.name as string,
+        image: payload.image as string,
+        role: (payload.role as string) ?? "seeker",
         callbackURL: "/",
       })
     }

@@ -10,9 +10,7 @@ import { Label } from "@/components/ui/label"
 
 type AuthMode = "sign-in" | "sign-up"
 
-const copy: Record<
-  AuthMode,
-  {
+const copy: Record< AuthMode,{
     title: string
     subtitle: string
     cta: string
@@ -38,7 +36,7 @@ const copy: Record<
     switchTo: "sign-in",
   },
 }
-
+const roles= ["seeker", "recruiter", "admin"]
 function Logo() {
   return (
     <Link
@@ -113,6 +111,30 @@ export function AuthForm({ mode, onSubmit }: {
                   placeholder="Jane Doe"
                   className="h-10 border-zinc-800 bg-zinc-950/60 text-sm placeholder:text-zinc-600"
                 />
+              </div>
+            )}
+
+            {mode === "sign-up" && (
+              <div className="flex flex-col gap-2">
+                <Label className="text-zinc-300">I am a</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {roles.map((role) => (
+                    <label
+                      key={role}
+                      className="flex cursor-pointer items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950/60 px-2 py-2 text-sm capitalize text-zinc-400 transition-colors has-checked:border-primary has-checked:bg-primary/10 has-checked:text-white hover:border-zinc-700"
+                    >
+                      <input
+                        type="radio"
+                        name="role"
+                        value={role}
+                        defaultChecked={role === "seeker"}
+                        className="sr-only"
+                        required
+                      />
+                      {role}
+                    </label>
+                  ))}
+                </div>
               </div>
             )}
 
