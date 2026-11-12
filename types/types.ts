@@ -1,4 +1,4 @@
-export type jobStatus = "Active" | "Expired " | "Draft"
+export type jobStatus = "Active" | "Expired" | "Draft"
 export type JobWorkMode = 'Remote' | 'Hybrid' | 'On-site'
 
 export type TJobData = {

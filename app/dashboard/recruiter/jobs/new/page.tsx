@@ -1,9 +1,8 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -17,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { createJob } from '@/lib/actions/job'
 import { TJobData } from '@/types/types'
 import { toast } from '@/components/ui/toast'
+import { useRouter } from 'next/navigation'
 
 
 const jobCategories = [
@@ -36,27 +36,80 @@ const salaryFrequencies = ['per hour', 'per day', 'per month', 'per year']
 
 const workModes: Array<TJobData['workMode']> = ['Remote', 'Hybrid', 'On-site']
 
+const jobStatuses: Array<TJobData['status']> = ['Active', 'Draft']
+
 const inputLabelClass = 'mb-1.5 block text-sm font-medium'
 const requiredMark = <span className="text-destructive"> *</span>
 
+// Chip styling shared by the Job Type & Work Mode radio groups
+const chipLabelClass =
+  'has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary flex cursor-pointer items-center gap-1.5 rounded-lg border border-input px-2.5 py-1.5 text-sm transition-colors has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50'
+
+const initialJobData: TJobData = {
+  title: '',
+  companyName: '',
+  jobCategory: '',
+  jobType: 'Full-time',
+  status: 'Active',
+  workMode: 'Remote',
+  location: '',
+  deadline: '',
+  salaryFrequency: 'per hour',
+  minSalary: 0,
+  maxSalary: 0,
+  applicants: 0, // not collected in the form — new posts always start with 0
+  responsibilities: '',
+  requirements: '',
+}
+
 const NewJobPage = () => {
+  // Whole form lives in one state object — every field is controlled
+  const [jobData, setJobData] = useState<TJobData>(initialJobData)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
+
+  // Generic field setter, keeps numbers as real numbers
+  const setField = <K extends keyof TJobData>(key: K, value: TJobData[K]) => {
+    setJobData((prev) => ({ ...prev, [key]: value }))
+  }
+
+  // One onChange handler for all text & number inputs/textareas
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, type, value } = event.target
+    setJobData((prev) => ({
+      ...prev,
+      // number inputs come through as strings → convert them here
+      [name]: type === 'number' ? Number(value) || 0 : value,
+    }))
+  }
+
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setIsSubmitting(true)
 
-    // Easy data collection — all fields (including Select & Checkbox) in one step
-    const newFormData= new FormData(event.currentTarget)
-   
-    const jobData = Object.fromEntries(newFormData.entries()) as TJobData
-
-    console.log('Job form data:', jobData)
-    // TODO: send `data` to your jobs API
-    const result = await createJob(jobData)
-    console.log("submitted data",result)
-    if(result.insertedId){
+    try {
+      // jobData is already collected & typed via useState — no FormData needed
+      console.log('Job form data:', jobData)
+      const result = await createJob(jobData)
+      console.log("submitted data",result)
+      if(result.insertedId){
+        toast.add({
+          title: "Job created successfully!",
+          description: `${jobData.title} has been added to your job listings.`,
+        })
+        setJobData(initialJobData) // reset the form
+        router.refresh()
+      }
+    } catch (error) {
+      console.error('Failed to create job:', error)
       toast.add({
-        title: "Job created successfully!",
-        description: `${jobData.title} has been added to your job listings.`,
+        title: "Failed to create job",
+        description: "Something went wrong. Please try again.",
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -64,7 +117,7 @@ const NewJobPage = () => {
     <div className="mx-auto w-full  space-y-6 p-4 md:p-6">
       {/* Page header */}
       <div>
-        <h2 className="text-2xl font-semibold">Update Job Post</h2>
+        <h2 className="text-2xl font-semibold">Create Job Post</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Modify position specifications, compensation range, and candidate requirements for this
           listing.
@@ -82,19 +135,37 @@ const NewJobPage = () => {
               <Label htmlFor="title" className={inputLabelClass}>
                 Job Title{requiredMark}
               </Label>
-              <Input id="title" name="title" placeholder="Frontend Developer" required />
+              <Input
+                id="title"
+                name="title"
+                value={jobData.title}
+                onChange={handleChange}
+                placeholder="Frontend Developer"
+                required
+              />
             </div>
 
             <div className="sm:col-span-1">
               <Label htmlFor="companyName" className={inputLabelClass}>
                 Company Name{requiredMark}
               </Label>
-              <Input id="companyName" name="companyName" placeholder="Acme Inc." required />
+              <Input
+                id="companyName"
+                name="companyName"
+                value={jobData.companyName}
+                onChange={handleChange}
+                placeholder="Acme Inc."
+                required
+              />
             </div>
 
             <div className="sm:col-span-1">
               <Label className={inputLabelClass}>Job Category{requiredMark}</Label>
-              <Select name="jobCategory" required>
+              <Select
+                value={jobData.jobCategory}
+                onValueChange={(value) => setField('jobCategory', value as string)}
+                required
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -111,17 +182,16 @@ const NewJobPage = () => {
             <div className="sm:col-span-1">
               <Label className={inputLabelClass}>Job Type{requiredMark}</Label>
               <div className="flex flex-wrap gap-2">
-                {jobTypes.map((type, index) => (
-                  <label
-                    key={type}
-                    className="has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary flex cursor-pointer items-center gap-1.5 rounded-lg border border-input px-2.5 py-1.5 text-sm transition-colors has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50"
-                  >
-                    {/* Native radio → picked up by FormData automatically */}
+                {jobTypes.map((type) => (
+                  <label key={type} className={chipLabelClass}>
                     <input
                       type="radio"
                       name="jobType"
                       value={type}
-                      defaultChecked={index === 0}
+                      checked={jobData.jobType === type}
+                      onChange={(event) =>
+                        setField('jobType', event.target.value as TJobData['jobType'])
+                      }
                       className="sr-only"
                       required
                     />
@@ -129,6 +199,26 @@ const NewJobPage = () => {
                   </label>
                 ))}
               </div>
+            </div>
+
+            <div className="sm:col-span-1">
+              <Label className={inputLabelClass}>Status{requiredMark}</Label>
+              <Select
+                value={jobData.status}
+                onValueChange={(value) => setField('status', value as TJobData['status'])}
+                required
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {jobStatuses.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </CardContent>
         </Card>
@@ -140,31 +230,18 @@ const NewJobPage = () => {
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-input p-3 transition-colors hover:bg-muted/50">
-                <Checkbox name="isRemote" value="true" className="mt-0.5" />
-                <span>
-                  <span className="block text-sm font-medium">Remote Work Allowed (isRemote)</span>
-                  <span className="block text-xs text-muted-foreground">
-                    Enable worldwide or distributed candidate applications
-                  </span>
-                </span>
-              </label>
-            </div>
-
-            <div className="sm:col-span-2">
               <Label className={inputLabelClass}>Work Mode{requiredMark}</Label>
               <div className="flex flex-wrap gap-2">
-                {workModes.map((mode, index) => (
-                  <label
-                    key={mode}
-                    className="has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary flex cursor-pointer items-center gap-1.5 rounded-lg border border-input px-2.5 py-1.5 text-sm transition-colors has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50"
-                  >
-                    {/* Native radio → picked up by FormData automatically */}
+                {workModes.map((mode) => (
+                  <label key={mode} className={chipLabelClass}>
                     <input
                       type="radio"
                       name="workMode"
                       value={mode}
-                      defaultChecked={index === 0}
+                      checked={jobData.workMode === mode}
+                      onChange={(event) =>
+                        setField('workMode', event.target.value as TJobData['workMode'])
+                      }
                       className="sr-only"
                       required
                     />
@@ -178,14 +255,28 @@ const NewJobPage = () => {
               <Label htmlFor="location" className={inputLabelClass}>
                 Job Location (location){requiredMark}
               </Label>
-              <Input id="location" name="location" placeholder="New York, USA" required />
+              <Input
+                id="location"
+                name="location"
+                value={jobData.location}
+                onChange={handleChange}
+                placeholder="New York, USA"
+                required
+              />
             </div>
 
             <div>
               <Label htmlFor="deadline" className={inputLabelClass}>
                 Application Deadline (deadline){requiredMark}
               </Label>
-              <Input id="deadline" name="deadline" type="date" required />
+              <Input
+                id="deadline"
+                name="deadline"
+                type="date"
+                value={jobData.deadline}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             <div className="grid grid-cols-3 gap-3 sm:col-span-2">
@@ -198,6 +289,8 @@ const NewJobPage = () => {
                   name="minSalary"
                   type="number"
                   min="0"
+                  value={jobData.minSalary}
+                  onChange={handleChange}
                   placeholder="25"
                 />
               </div>
@@ -210,12 +303,19 @@ const NewJobPage = () => {
                   name="maxSalary"
                   type="number"
                   min="0"
+                  value={jobData.maxSalary}
+                  onChange={handleChange}
                   placeholder="40"
                 />
               </div>
               <div>
                 <Label className={inputLabelClass}>Frequency</Label>
-                <Select name="salaryFrequency" defaultValue="per hour">
+                <Select
+                  value={jobData.salaryFrequency}
+                  onValueChange={(value) =>
+                    setField('salaryFrequency', value as TJobData['salaryFrequency'])
+                  }
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -246,6 +346,8 @@ const NewJobPage = () => {
                 id="responsibilities"
                 name="responsibilities"
                 rows={5}
+                value={jobData.responsibilities}
+                onChange={handleChange}
                 placeholder="Describe the key responsibilities of this role..."
                 required
               />
@@ -259,6 +361,8 @@ const NewJobPage = () => {
                 id="requirements"
                 name="requirements"
                 rows={5}
+                value={jobData.requirements}
+                onChange={handleChange}
                 placeholder="• 3+ years of experience with React, TypeScript..."
                 required
               />
@@ -268,8 +372,8 @@ const NewJobPage = () => {
 
         {/* Submit */}
         <div className="flex justify-end">
-          <Button type="submit" size="lg">
-            Update Job
+          <Button type="submit" size="lg" disabled={isSubmitting}>
+            {isSubmitting ? 'Posting...' : 'Publish Job'}
           </Button>
         </div>
       </form>
