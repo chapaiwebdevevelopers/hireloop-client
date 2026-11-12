@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,54 +17,21 @@ import { createJob } from '@/lib/actions/job'
 import { TJobData } from '@/types/types'
 import { toast } from '@/components/ui/toast'
 import { useRouter } from 'next/navigation'
+import {
+  INITIAL_JOB_DATA,
+  JOB_CATEGORIES,
+  JOB_STATUSES,
+  JOB_TYPES,
+  SALARY_FREQUENCIES,
+  WORK_MODES,
+} from '@/lib/constants'
+import { chipLabelClass, inputLabelClass, pageContainerClass } from '@/lib/styles'
 
-
-const jobCategories = [
-  'HireLoop Network',
-  'Engineering & Tech',
-  'Design & Creative',
-  'Marketing & Sales',
-  'Customer Support',
-  'Finance & Accounting',
-  'Healthcare',
-  'Education & Training',
-]
-
-const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship']
-
-const salaryFrequencies = ['per hour', 'per day', 'per month', 'per year']
-
-const workModes: Array<TJobData['workMode']> = ['Remote', 'Hybrid', 'On-site']
-
-const jobStatuses: Array<TJobData['status']> = ['Active', 'Draft']
-
-const inputLabelClass = 'mb-1.5 block text-sm font-medium'
 const requiredMark = <span className="text-destructive"> *</span>
-
-// Chip styling shared by the Job Type & Work Mode radio groups
-const chipLabelClass =
-  'has-[:checked]:border-primary has-[:checked]:bg-primary/10 has-[:checked]:text-primary flex cursor-pointer items-center gap-1.5 rounded-lg border border-input px-2.5 py-1.5 text-sm transition-colors has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50'
-
-const initialJobData: TJobData = {
-  title: '',
-  companyName: '',
-  jobCategory: '',
-  jobType: 'Full-time',
-  status: 'Active',
-  workMode: 'Remote',
-  location: '',
-  deadline: '',
-  salaryFrequency: 'per hour',
-  minSalary: 0,
-  maxSalary: 0,
-  applicants: 0, // not collected in the form — new posts always start with 0
-  responsibilities: '',
-  requirements: '',
-}
 
 const NewJobPage = () => {
   // Whole form lives in one state object — every field is controlled
-  const [jobData, setJobData] = useState<TJobData>(initialJobData)
+  const [jobData, setJobData] = useState<TJobData>(INITIAL_JOB_DATA)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
 
@@ -99,7 +66,7 @@ const NewJobPage = () => {
           title: "Job created successfully!",
           description: `${jobData.title} has been added to your job listings.`,
         })
-        setJobData(initialJobData) // reset the form
+        setJobData(INITIAL_JOB_DATA) // reset the form
         router.refresh()
       }
     } catch (error) {
@@ -114,7 +81,7 @@ const NewJobPage = () => {
   }
 
   return (
-    <div className="mx-auto w-full  space-y-6 p-4 md:p-6">
+    <div className={pageContainerClass}>
       {/* Page header */}
       <div>
         <h2 className="text-2xl font-semibold">Create Job Post</h2>
@@ -170,7 +137,7 @@ const NewJobPage = () => {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {jobCategories.map((category) => (
+                  {JOB_CATEGORIES.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
@@ -182,7 +149,7 @@ const NewJobPage = () => {
             <div className="sm:col-span-1">
               <Label className={inputLabelClass}>Job Type{requiredMark}</Label>
               <div className="flex flex-wrap gap-2">
-                {jobTypes.map((type) => (
+                {JOB_TYPES.map((type) => (
                   <label key={type} className={chipLabelClass}>
                     <input
                       type="radio"
@@ -212,7 +179,7 @@ const NewJobPage = () => {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  {jobStatuses.map((status) => (
+                  {JOB_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
                       {status}
                     </SelectItem>
@@ -232,7 +199,7 @@ const NewJobPage = () => {
             <div className="sm:col-span-2">
               <Label className={inputLabelClass}>Work Mode{requiredMark}</Label>
               <div className="flex flex-wrap gap-2">
-                {workModes.map((mode) => (
+                {WORK_MODES.map((mode) => (
                   <label key={mode} className={chipLabelClass}>
                     <input
                       type="radio"
@@ -320,7 +287,7 @@ const NewJobPage = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {salaryFrequencies.map((frequency) => (
+                    {SALARY_FREQUENCIES.map((frequency) => (
                       <SelectItem key={frequency} value={frequency}>
                         {frequency}
                       </SelectItem>

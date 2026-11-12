@@ -1,22 +1,24 @@
-import { TJobData } from "@/types/types"
+import { TJobData, TJobActionResult } from "@/types/types";
+import { API_BASE_URL } from "@/lib/api-client";
 
-const BASE_URL=process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+export const createJob = async (data: TJobData): Promise<TJobActionResult> => {
+  const res = await fetch(`${API_BASE_URL}/jobs`, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  const result: TJobActionResult = await res.json();
 
-export const createJob = async(data:TJobData)=>{
-    const res = await fetch(`${BASE_URL}/jobs`,{
-        method:"POST",
-        headers:{
-            'Content-type':'application/json',
-        },
-        body:JSON.stringify(data)
-    })
-     const result = await res.json()
+  return result;
+};
 
-  return result
-}
-export const deleteJob= async(jobId:string)=>{
-    const res = await fetch(`${BASE_URL}/jobs/${jobId}`,{
-        method:'DELETE'
-    })
-    return res.json()
-}
+export const deleteJob = async (jobId: string): Promise<TJobActionResult> => {
+  const res = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
+    method: "DELETE",
+  });
+  const result: TJobActionResult = await res.json();
+
+  return result;
+};

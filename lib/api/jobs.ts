@@ -1,7 +1,9 @@
+import { TJobListing } from "@/types/types";
+import { API_BASE_URL } from "@/lib/api-client";
 
-const BASE_URL=process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+export const getJobs = async (): Promise<TJobListing[]> => {
+  const res = await fetch(`${API_BASE_URL}/jobs`);
+  const jobs: TJobListing[] = await res.json();
 
-export const getJobs = async()=>{
-    const res = await fetch(`${BASE_URL}/jobs`);
-    return res.json()
-}
+  return jobs;
+};

@@ -1,8 +1,7 @@
-import React from "react"
-import Link from "next/link"
-import { Ellipsis} from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import Link from "next/link";
+import { Ellipsis } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -10,96 +9,40 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { TJobData } from "@/types/types"
-import { getJobs } from "@/lib/api/jobs"
-import { DeleteJobsDialog } from "@/app/components/DeleteDialogue"
-
-// Extra fields used for display on this page (applicants, posting status, etc.)
-// layered on top of the shared TJobData shape.
-export type TJobListing = TJobData & {
-  _id: string
-  postedAgo: string
-  isClosed?: boolean
-}
-
-
-const formatCompensation = (job: TJobData) => {
-  const min = Number(job.minSalary)
-  const max = Number(job.maxSalary)
-
-  const formatValue = (value: number) => {
-    if (job.salaryFrequency === "per year" && value >= 1000) {
-      return `€${Math.round(value / 1000)}k`
-    }
-    return `€${value}`
-  }
-
-  const frequencyLabel =
-    job.salaryFrequency === "per hour"
-      ? "hr"
-      : job.salaryFrequency === "per day"
-        ? "day"
-        : job.salaryFrequency === "per month"
-          ? "mo"
-          : "yr"
-
-  return `${formatValue(min)} – ${formatValue(max)} / ${frequencyLabel}`
-}
-
-const formatLocation = (job: TJobListing) => {
-  if (job.workMode === "Remote") return `Remote (${job.location})`
-  if (job.workMode === "Hybrid") return `${job.location} (Hybrid)`
-  return job.location
-}
-
-const monthNames = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-]
-
-const formatDeadline = (deadline: string) => {
-  const [year, month, day] = deadline.split("-").map(Number)
-  return `${monthNames[month - 1]} ${String(day).padStart(2, "0")}, ${year}`
-}
-
-const statusBadge = (status: TJobListing["status"]) => (
-  <Badge
-    variant="secondary"
-    className={
-      status === "Active"
-        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-        : "bg-destructive/10 text-destructive"
-    }
-  >
-    {status}
-  </Badge>
-)
+} from "@/components/ui/dropdown-menu";
+import { DeleteJobsDialog } from "@/app/components/DeleteDialogue";
+import { JobStatusBadge } from "@/app/components/JobStatusBadge";
+import { TJobListing } from "@/types/types";
+import {
+  formatCompensation,
+  formatDeadline,
+  formatLocation,
+} from "@/lib/job-utils";
+import {
+  pageContainerClass,
+  tableHeaderClass,
+  tableCellClass,
+  colTypeClass,
+  colCompensationClass,
+  colApplicantsClass,
+  colDeadlineClass,
+} from "@/lib/styles";
+import { getJobs } from "@/lib/api/jobs";
 
 // Update → Delete (icon) → three-dot overflow menu
 const JobRowActions = ({
   isClosed,
   job,
 }: {
-  isClosed?: boolean
-  job: TJobListing
+  isClosed?: boolean;
+  job: TJobListing;
 }) => (
   <div className="flex items-center gap-1">
     <Button variant="outline" size="sm">
@@ -115,41 +58,25 @@ const JobRowActions = ({
         <Ellipsis />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
-        <DropdownMenuItem>View applicants </DropdownMenuItem>
-        <DropdownMenuItem ><Link href={`/jobs/${job._id}`}>Visit Job</Link></DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">
-         Mark as closed
+        <DropdownMenuItem>View applicants</DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link href={`/jobs/${job._id}`}>Visit Job</Link>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive">Mark as closed</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
     {isClosed && (
       <span className="ml-1 text-xs text-muted-foreground">Closed</span>
     )}
   </div>
-)
-
-
-const tableHeaderClass =
-  "px-4 py-3 text-left text-xs font-semibold tracking-wide text-muted-foreground uppercase whitespace-nowrap"
-const tableCellClass = "px-4 py-4 align-middle whitespace-nowrap"
-
-// Column visibility classes — lower-priority columns collapse on smaller screens
-// instead of forcing a wide horizontal scroll.
-const colTypeClass = "hidden lg:table-cell"
-const colCompensationClass = "hidden lg:table-cell"
-const colApplicantsClass = "hidden xl:table-cell"
-const colDeadlineClass = "hidden md:table-cell"
-
-
-
+);
 
 const ManageJobsPage = async () => {
-  const jobListings = await getJobs()
-  // console.log(jobListings)
+  const jobListings = await getJobs();
 
   return (
-    <div className="mx-auto w-full space-y-6 p-4 md:p-6">
+    <div className={pageContainerClass}>
       {/* Page header */}
       <div className="space-y-2">
         <Badge variant="secondary" className="h-6 px-3">
@@ -157,7 +84,6 @@ const ManageJobsPage = async () => {
         </Badge>
         <h2 className="text-2xl font-semibold">Manage Jobs</h2>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>Manage Job Posts</CardTitle>
@@ -203,7 +129,9 @@ const ManageJobsPage = async () => {
                     className="transition-colors hover:bg-muted/30"
                   >
                     <td className={tableCellClass}>
-                      <div className="font-medium"><Link href={`/jobs/${job._id}`}>{job.title}</Link> </div>
+                      <div className="font-medium">
+                        <Link href={`/jobs/${job._id}`}>{job.title}</Link>{" "}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         {job.jobCategory}
                       </div>
@@ -224,7 +152,7 @@ const ManageJobsPage = async () => {
                       {job.applicants} Candidates
                     </td>
                     <td className={tableCellClass}>
-                      {statusBadge(job.status)}
+                      <JobStatusBadge status={job.status} />
                     </td>
                     <td className={`${tableCellClass} ${colDeadlineClass}`}>
                       <div>{formatDeadline(job.deadline)}</div>
@@ -252,7 +180,7 @@ const ManageJobsPage = async () => {
                       {job.jobCategory}
                     </div>
                   </div>
-                  {statusBadge(job.status)}
+                  <JobStatusBadge status={job.status} />
                 </div>
 
                 <div className="text-sm">
@@ -293,7 +221,7 @@ const ManageJobsPage = async () => {
         </CardContent>
       </Card>
     </div>
-  )
-}
+  );
+};
 
-export default ManageJobsPage
+export default ManageJobsPage;

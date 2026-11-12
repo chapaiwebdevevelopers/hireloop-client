@@ -11,13 +11,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { TJobData } from "@/types/types"
 import { Trash2 } from "lucide-react"
-import { TJobListing } from "../dashboard/recruiter/jobs/page"
 import { deleteJob } from "@/lib/actions/job"
 import { useState } from "react"
 import { toast } from "@/components/ui/toast"
 import { useRouter } from "next/navigation"
+import { dangerIconButtonClass } from "@/lib/styles"
+import type { TJobListing } from "@/types/types"
 
 
 export function DeleteJobsDialog({ job }: { job: TJobListing }) {
@@ -44,7 +44,7 @@ export function DeleteJobsDialog({ job }: { job: TJobListing }) {
             variant="ghost"
             size="icon-sm"
             aria-label="Delete job post"
-            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            className={dangerIconButtonClass}
           >
             <Trash2 />{" "}
           </Button>
