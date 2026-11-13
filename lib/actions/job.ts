@@ -22,3 +22,19 @@ export const deleteJob = async (jobId: string): Promise<TJobActionResult> => {
 
   return result;
 };
+
+export const updateJob = async (
+  jobId: string,
+  data: TJobData,
+): Promise<TJobActionResult> => {
+  const res = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
+    method: "PUT",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  const result: TJobActionResult = await res.json();
+
+  return result;
+};

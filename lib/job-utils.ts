@@ -1,4 +1,4 @@
-import { TJobData } from "@/types/types";
+import { TJobData, TJobListing } from "@/types/types";
 
 /**
  * Display formatters for job listings — reusable across
@@ -58,3 +58,24 @@ export const formatDeadline = (deadline: string) => {
   const [year, month, day] = deadline.split("-").map(Number);
   return `${MONTH_NAMES[month - 1]} ${String(day).padStart(2, "0")}, ${year}`;
 };
+
+/**
+ * Strip listing-only fields (_id, postedAgo, isClosed) down to the core
+ * TJobData shape — used to prefill edit forms.
+ */
+export const toJobData = (job: TJobListing): TJobData => ({
+  title: job.title,
+  companyName: job.companyName,
+  jobCategory: job.jobCategory,
+  jobType: job.jobType,
+  location: job.location,
+  deadline: job.deadline,
+  salaryFrequency: job.salaryFrequency,
+  minSalary: job.minSalary,
+  maxSalary: job.maxSalary,
+  status: job.status,
+  workMode: job.workMode,
+  applicants: job.applicants,
+  requirements: job.requirements,
+  responsibilities: job.responsibilities,
+});
