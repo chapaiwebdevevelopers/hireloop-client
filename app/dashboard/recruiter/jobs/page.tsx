@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DeleteJobsDialog } from "@/app/components/DeleteDialogue";
 import { JobStatusBadge } from "@/app/components/JobStatusBadge";
-import { UpdateJobDialog } from "@/app/components/UpdateJobDialog";
 import { TJobListing } from "@/types/types";
 import {
   formatCompensation,
@@ -37,7 +36,7 @@ import {
 } from "@/lib/styles";
 import { getJobs } from "@/lib/api/jobs";
 
-// Update (opens reusable JobForm in a dialog popup) → Delete (icon) → three-dot overflow menu
+// Update → Delete (icon) → three-dot overflow menu
 const JobRowActions = ({
   isClosed,
   job,
@@ -46,7 +45,9 @@ const JobRowActions = ({
   job: TJobListing;
 }) => (
   <div className="flex items-center gap-1">
-    <UpdateJobDialog job={job} />
+    <Button variant="outline" size="sm">
+      Update
+    </Button>
     <DeleteJobsDialog job={job} />
     <DropdownMenu>
       <DropdownMenuTrigger

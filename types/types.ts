@@ -4,7 +4,7 @@
  */
 
 /** Posting status of a job */
-export type TJobStatus = "Active" | "Expired" | "Draft" |"Closed";
+export type TJobStatus = "Active" | "Expired" | "Draft";
 
 /** Where / how the job is performed */
 export type TJobWorkMode = "Remote" | "Hybrid" | "On-site";
@@ -40,10 +40,8 @@ export type TJobListing = TJobData & {
   isClosed?: boolean;
 };
 
-/** Loose shape of the job create/delete/update API responses */
+/** Loose shape of the job create/delete API responses */
 export type TJobActionResult = {
   insertedId?: string;
   deletedCount?: number;
-  modifiedCount?: number;
-  acknowledged?: boolean;
 };
