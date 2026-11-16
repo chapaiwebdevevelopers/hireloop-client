@@ -49,6 +49,7 @@ export const INITIAL_JOB_DATA: TJobData = {
   minSalary: 0,
   maxSalary: 0,
   applicants: 0, // not collected in the form — new posts always start with 0
+  description: "",
   responsibilities: "",
   requirements: "",
 };

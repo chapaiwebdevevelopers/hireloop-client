@@ -1,7 +1,21 @@
 import { betterAuth } from "better-auth"
 import { MongoClient } from "mongodb"
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
-const client = new MongoClient(process.env.BETTER_AUTH_DB_URI as string)
+
+// In dev, hot-reload re-evaluates this module and a fresh module-level
+// MongoClient would replace the old one — the old topology ends up closed
+// (MongoTopologyClosedError) and every auth request fails until restart.
+// Cache the client on globalThis so all reloads share one connection.
+const globalForMongo = globalThis as unknown as { mongoClient?: MongoClient }
+
+const client =
+  globalForMongo.mongoClient ??
+  new MongoClient(process.env.BETTER_AUTH_DB_URI as string)
+
+if (process.env.NODE_ENV !== "production") {
+  globalForMongo.mongoClient = client
+}
+
 const db = client.db("hireloopdb")
 
 export const auth = betterAuth({

@@ -94,6 +94,7 @@ export const toJobData = (job: TJobListing): TJobData => ({
   status: job.status,
   workMode: job.workMode,
   applicants: job.applicants,
+  description: job.description ?? "",
   requirements: job.requirements,
   responsibilities: job.responsibilities,
 });

@@ -1,4 +1,4 @@
-import { TJobData, TJobActionResult } from "@/types/types";
+import { TJobData, TJobActionResult, TApplyJob } from "@/types/types";
 import { API_BASE_URL } from "@/lib/api-client";
 
 export const createJob = async (data: TJobData): Promise<TJobActionResult> => {
@@ -38,3 +38,14 @@ export const updateJob = async (
 
   return result;
 };
+
+export const ApplyToJob = async(data:TApplyJob)=>{
+  const res = await fetch(`${API_BASE_URL}/application`,{
+    method:"POST",
+    headers:{
+      'Content-type':"application/json"
+    },
+    body:JSON.stringify(data)
+  })
+  return res.json()
+}

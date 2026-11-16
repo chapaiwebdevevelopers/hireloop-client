@@ -325,12 +325,27 @@ export function JobForm({
         </CardContent>
       </Card>
 
-      {/* 3. Responsibilities & Requirements */}
+      {/* 3. Description, Responsibilities & Requirements */}
       <Card>
         <CardHeader>
-          <CardTitle>3. Responsibilities &amp; Requirements</CardTitle>
+          <CardTitle>3. Description, Responsibilities &amp; Requirements</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
+          <div>
+            <Label htmlFor="description" className={inputLabelClass}>
+              Job Description{requiredMark}
+            </Label>
+            <Textarea
+              id="description"
+              name="description"
+              rows={4}
+              value={jobData.description}
+              onChange={handleChange}
+              placeholder="Give candidates a short overview of the role, the team and what makes this position exciting..."
+              required
+            />
+          </div>
+
           <div>
             <Label htmlFor="responsibilities" className={inputLabelClass}>
               Key Responsibilities{requiredMark}

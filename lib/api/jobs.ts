@@ -8,7 +8,9 @@ export const getJobs = async (query = ''): Promise<TJobListing[]> => {
   return jobs;
 };
 
-export const getJobsById = async(id:string)=>{
-  const res = await fetch(`${API_BASE_URL}/jobs/${id}`)
-  return res.json()
-}
+/** Returns a single job, or null when the id is unknown / the API fails */
+export const getJobsById = async (id: string): Promise<TJobListing | null> => {
+  const res = await fetch(`${API_BASE_URL}/jobs/${id}`);
+  if (!res.ok) return null;
+  return res.json();
+};
