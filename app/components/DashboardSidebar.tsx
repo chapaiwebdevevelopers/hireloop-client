@@ -30,7 +30,7 @@ const menuItemsByRole = {
     { id: "dashboard", name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { id: "jobs", name: "Jobs", url: "/dashboard/jobs", icon: Briefcase },
     { id: "saved-jobs", name: "Saved Jobs", url: "/dashboard/saved-jobs", icon: Bookmark },
-    { id: "applications", name: "Applications", url: "/dashboard/applications", icon: FileText },
+    { id: "applications", name: "Applications", url: "/dashboard/seeker/applications", icon: FileText },
     { id: "billing", name: "Billing", url: "/dashboard/billing", icon: CreditCard },
     { id: "settings", name: "Settings", url: "/dashboard/settings", icon: Settings },
   ],
