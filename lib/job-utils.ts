@@ -60,6 +60,24 @@ export const formatDeadline = (deadline: string) => {
 };
 
 /**
+ * Sort options for the jobs archive page.
+ * Lives here (not in a "use client" file) so the Server Component page
+ * can read the ?sort= param too.
+ */
+export const SORT_OPTIONS = [
+  { value: "recent", label: "Most Recent" },
+  { value: "salary-desc", label: "Salary: High to Low" },
+  { value: "salary-asc", label: "Salary: Low to High" },
+] as const;
+
+export type TSortValue = (typeof SORT_OPTIONS)[number]["value"];
+
+/** Falls back to "recent" for any missing/unknown ?sort= value */
+export const isSortValue = (value: string | undefined): TSortValue =>
+  (SORT_OPTIONS.find((option) => option.value === value)?.value ??
+    "recent") as TSortValue;
+
+/**
  * Strip listing-only fields (_id, postedAgo, isClosed) down to the core
  * TJobData shape — used to prefill edit forms.
  */
