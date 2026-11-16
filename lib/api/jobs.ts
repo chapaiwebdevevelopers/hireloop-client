@@ -7,3 +7,8 @@ export const getJobs = async (query = ''): Promise<TJobListing[]> => {
 
   return jobs;
 };
+
+export const getJobsById = async(id:string)=>{
+  const res = await fetch(`${API_BASE_URL}/jobs/${id}`)
+  return res.json()
+}
