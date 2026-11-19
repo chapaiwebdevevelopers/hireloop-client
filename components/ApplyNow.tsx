@@ -24,7 +24,12 @@ const ApplyNowButton = ({job}:{job:TJobData}) => {
                 userId:user.id,
                 email:user.email,
                 jobTitle:job.title,
-                companyName:job.companyName
+                companyName:job.companyName,
+                jobType:job.jobType,
+                workMode:job.workMode,
+                status:job.status,
+                Deadline:job.deadline,
+                
             }
             // send data to database through 'ApplyToJob()' function 
             const sendJobData = await ApplyToJob(application)

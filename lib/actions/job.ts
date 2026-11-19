@@ -1,5 +1,10 @@
-import { TJobData, TJobActionResult, TApplyJob } from "@/types/types";
-import { API_BASE_URL } from "@/lib/api-client";
+import {
+  TJobData,
+  TJobActionResult,
+  TApplyJob,
+  TApplication,
+} from "@/types/types"
+import { API_BASE_URL } from "@/lib/api-client"
 
 export const createJob = async (data: TJobData): Promise<TJobActionResult> => {
   const res = await fetch(`${API_BASE_URL}/jobs`, {
@@ -8,24 +13,24 @@ export const createJob = async (data: TJobData): Promise<TJobActionResult> => {
       "Content-type": "application/json",
     },
     body: JSON.stringify(data),
-  });
-  const result: TJobActionResult = await res.json();
+  })
+  const result: TJobActionResult = await res.json()
 
-  return result;
-};
+  return result
+}
 
 export const deleteJob = async (jobId: string): Promise<TJobActionResult> => {
   const res = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
     method: "DELETE",
-  });
-  const result: TJobActionResult = await res.json();
+  })
+  const result: TJobActionResult = await res.json()
 
-  return result;
-};
+  return result
+}
 
 export const updateJob = async (
   jobId: string,
-  data: TJobData,
+  data: TJobData
 ): Promise<TJobActionResult> => {
   const res = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
     method: "PUT",
@@ -33,19 +38,28 @@ export const updateJob = async (
       "Content-type": "application/json",
     },
     body: JSON.stringify(data),
-  });
-  const result: TJobActionResult = await res.json();
-
-  return result;
-};
-
-export const ApplyToJob = async(data:TApplyJob)=>{
-  const res = await fetch(`${API_BASE_URL}/application`,{
-    method:"POST",
-    headers:{
-      'Content-type':"application/json"
-    },
-    body:JSON.stringify(data)
   })
+  const result: TJobActionResult = await res.json()
+
+  return result
+}
+
+export const ApplyToJob = async (data: TApplyJob) => {
+  const res = await fetch(`${API_BASE_URL}/application`, {
+    method: "POST",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+  return res.json()
+}
+
+// show all applyjob According to User
+
+export const getApplication = async (userapp = ""): Promise<TApplication[]> => {
+  const res = await fetch(
+    `${API_BASE_URL}/application${userapp ? `?${userapp}` : ""}`
+  )
   return res.json()
 }

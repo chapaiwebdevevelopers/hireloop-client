@@ -50,10 +50,37 @@ export type TJobActionResult = {
   acknowledged?: boolean
 }
 
+/** Lifecycle of a job application */
+export type TApplicationStatus =
+  "Applied" | "Review" | "Shortlisted" | "Rejected" | "Offered"
+
+/** Payload written to the API when a seeker applies for a job */
 export type TApplyJob = {
   jobId: string
   userId: string
   email: string
   jobTitle: string
   companyName: string
+  jobType: string
+  workMode: string
+  status: string
+  Deadline: string
+}
+
+/**
+ * An application row as returned by the API — the backend flattens the
+ * job title/company onto the record and tracks its own lifecycle fields.
+ */
+export type TApplication = {
+  _id: string
+  id: number
+  userId: string
+  email: string
+  title: string
+  company: string
+  jobType: string
+  workMode: string
+  appliedAgo: string
+  status: TApplicationStatus
+  archived: boolean
 }

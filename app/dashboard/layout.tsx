@@ -6,7 +6,8 @@ import { Toaster } from '@/components/ui/toast';
 
 const DashbaordLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <SidebarProvider>
+
+                <SidebarProvider>
       <DashboardSidebar></DashboardSidebar>
       <main>
         <SidebarTrigger />
@@ -14,6 +15,8 @@ const DashbaordLayout = ({ children }: { children: React.ReactNode }) => {
       </main>
        <Toaster />
     </SidebarProvider>
+
+
     );
 };
 
