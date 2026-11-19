@@ -29,6 +29,8 @@ import {
   tableHeaderClass,
 } from "@/lib/styles"
 import type { TApplication, TApplicationStatus } from "@/types/types"
+import Link from "next/link"
+import { timeAgo } from "@/lib/job-utils"
 
 const PAGE_SIZE = 5
 
@@ -278,15 +280,17 @@ const SeekerApplication = ({
                         <td
                           className={`${tableCellClass} text-muted-foreground`}
                         >
-                          {app.appliedAgo}
+                          {timeAgo(app.appliedAt)}
                         </td>
                         <td className={tableCellClass}>
                           <ApplicationStatusBadge status={app.status} />
                         </td>
                         <td className={`${tableCellClass} text-right`}>
-                          <Button variant="outline" size="sm">
-                            Details
-                          </Button>
+                          <Link href={`/jobs/${app.jobId ?? app._id}`}>
+                            <Button variant="outline" size="sm">
+                              Details
+                            </Button>
+                          </Link>
                         </td>
                       </tr>
                     ))}
@@ -311,12 +315,14 @@ const SeekerApplication = ({
                       <div>
                         <div className="text-sm font-medium">{app.company}</div>
                         <div className="text-xs text-muted-foreground">
-                          Applied {app.appliedAgo}
+                          {timeAgo(app.appliedAt)}
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
-                        Details
-                      </Button>
+                      <Link href={`/jobs/${app.jobId ?? app._id}`}>
+                        <Button variant="outline" size="sm">
+                          Details
+                        </Button>
+                      </Link>
                     </div>
                   </div>
                 ))}

@@ -85,7 +85,6 @@ export type TRawApplication = {
   companyName?: string
   jobType?: string
   workMode?: string
-  appliedAgo?: string
   appliedAt?: string
   status?: string
   archived?: boolean
@@ -97,13 +96,14 @@ export type TRawApplication = {
 export type TApplication = {
   _id: string
   id?: number
+  jobId?: string
   userId: string
   email: string
   title: string
   company: string
   jobType: string
   workMode: string
-  appliedAgo: string
   status: TApplicationStatus
   archived: boolean
+  appliedAt: string
 }
