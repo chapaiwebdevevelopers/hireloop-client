@@ -59,21 +59,44 @@ export type TApplyJob = {
   jobId: string
   userId: string
   email: string
-  jobTitle: string
-  companyName: string
+  title: string
+  company: string
   jobType: string
   workMode: string
-  status: string
+  status: TApplicationStatus
   Deadline: string
+  archived: boolean
+  appliedAt: string
 }
 
 /**
- * An application row as returned by the API — the backend flattens the
- * job title/company onto the record and tracks its own lifecycle fields.
+ * Application row exactly as it comes back from the API.
+ * Older records were saved with a different shape, so every display
+ * field is optional here and normalized into `TApplication` on read.
  */
+export type TRawApplication = {
+  _id: string
+  id?: number
+  userId: string
+  email: string
+  title?: string
+  company?: string
+  jobTitle?: string
+  companyName?: string
+  jobType?: string
+  workMode?: string
+  appliedAgo?: string
+  appliedAt?: string
+  status?: string
+  archived?: boolean
+  Deadline?: string
+  jobId?: string
+}
+
+/** Normalized application row used by the UI */
 export type TApplication = {
   _id: string
-  id: number
+  id?: number
   userId: string
   email: string
   title: string

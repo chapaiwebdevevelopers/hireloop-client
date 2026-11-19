@@ -119,8 +119,8 @@ const SeekerApplication = ({
   }, [applications])
 
   const filtered = useMemo(() => {
-    const byTab = applications.filter(
-      (app) => app.archived === (tab === "Archived")
+    const byTab = applications.filter((app) =>
+      tab === "Archived" ? app.archived : !app.archived
     )
     const q = search.trim().toLowerCase()
     if (!q) return byTab
@@ -138,7 +138,6 @@ const SeekerApplication = ({
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   )
-
   const showingFrom =
     filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1
   const showingTo = Math.min(currentPage * PAGE_SIZE, filtered.length)
