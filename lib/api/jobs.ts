@@ -14,3 +14,9 @@ export const getJobsById = async (id: string): Promise<TJobListing | null> => {
   if (!res.ok) return null;
   return res.json();
 };
+
+// Count applied job by the user 
+export const CountAppliedJob =  async (query = ''): Promise<{count:number}> => {
+  const res = await fetch(`${API_BASE_URL}/application/count?${query}`);
+ return res.json()
+};

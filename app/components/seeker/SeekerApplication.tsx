@@ -150,6 +150,7 @@ const SeekerApplication = ({
     setTab(nextTab)
     setPage(1)
   }
+  console.log(pageRows)
 
   return (
     <div className={pageContainerClass}>
