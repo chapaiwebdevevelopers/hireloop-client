@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Ellipsis } from "lucide-react";
+import { BriefcaseBusiness, Ellipsis, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +35,10 @@ import {
   colApplicantsClass,
   colDeadlineClass,
 } from "@/lib/styles";
-import { getJobs } from "@/lib/api/jobs";
+import { getAllJobsByUser, getJobs } from "@/lib/api/jobs";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+
 
 // Update (opens reusable JobForm in a dialog popup) → Delete (icon) → three-dot overflow menu
 const JobRowActions = ({
@@ -72,7 +75,17 @@ const JobRowActions = ({
 );
 
 const ManageJobsPage = async () => {
-  const jobListings = await getJobs();
+   const session = await auth.api.getSession({
+        headers: await headers()
+    })
+    console.log("session:",session)
+  // const jobListings = await getAllJobsByUser(session?.user.id);
+  const userId = session?.user.id;
+  const jobListings = userId ? await getAllJobsByUser(userId) : [];
+  const jobs: TJobListing[] = Array.isArray(jobListings)
+    ? jobListings
+    : [jobListings];
+  console.log("joblisting data",jobListings)
 
   return (
     <div className={pageContainerClass}>
@@ -121,56 +134,90 @@ const ManageJobsPage = async () => {
                   <th className={tableHeaderClass}>Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
-                {jobListings.map((job: TJobListing) => (
-                  <tr
-                    key={job._id}
-                    className="transition-colors hover:bg-muted/30"
-                  >
-                    <td className={tableCellClass}>
-                      <div className="font-medium">
-                        <Link href={`/jobs/${job._id}`}>{job.title}</Link>{" "}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {job.jobCategory}
-                      </div>
-                    </td>
-                    <td className={tableCellClass}>
-                      <div className="font-medium">{job.companyName}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatLocation(job)} · {job.postedAgo}
-                      </div>
-                    </td>
-                    <td className={`${tableCellClass} ${colTypeClass}`}>
-                      {job.jobType}
-                    </td>
-                    <td className={`${tableCellClass} ${colCompensationClass}`}>
-                      {formatCompensation(job)}
-                    </td>
-                    <td className={`${tableCellClass} ${colApplicantsClass}`}>
-                      {job.applicants} Candidates
-                    </td>
-                    <td className={tableCellClass}>
-                      <JobStatusBadge status={job.status} />
-                    </td>
-                    <td className={`${tableCellClass} ${colDeadlineClass}`}>
-                      <div>{formatDeadline(job.deadline)}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {job.postedAgo}
-                      </div>
-                    </td>
-                    <td className={tableCellClass}>
-                      <JobRowActions isClosed={job.isClosed} job={job} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+
+             
+<tbody className="divide-y">
+  {jobs.length === 0 ? (
+    <tr>
+      <td colSpan={8} className="h-64 text-center align-middle">
+        <div className="flex flex-col items-center justify-center gap-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+            <BriefcaseBusiness className="h-7 w-7 text-muted-foreground" />
+          </div>
+
+          <div>
+            <p className="font-semibold text-base">
+              No jobs found yet!
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              You havenot posted any jobs yet.
+              Start by creating your first job listing.
+            </p>
+          </div>
+        </div>
+      </td>
+    </tr>
+  ) : (
+    jobs.map((job: TJobListing) => (
+      <tr
+        key={job._id}
+        className="transition-colors hover:bg-muted/30"
+      >
+        <td className={tableCellClass}>
+          <div className="font-medium">
+            <Link href={`/jobs/${job._id}`}>{job.title}</Link>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {job.jobCategory}
+          </div>
+        </td>
+
+        <td className={tableCellClass}>
+          <div className="font-medium">{job.companyName}</div>
+          <div className="text-xs text-muted-foreground">
+            {formatLocation(job)} · {job.postedAgo}
+          </div>
+        </td>
+
+        <td className={`${tableCellClass} ${colTypeClass}`}>
+          {job.jobType}
+        </td>
+
+        <td className={`${tableCellClass} ${colCompensationClass}`}>
+          {formatCompensation(job)}
+        </td>
+
+        <td className={`${tableCellClass} ${colApplicantsClass}`}>
+          {job.applicants} Candidates
+        </td>
+
+        <td className={tableCellClass}>
+          <JobStatusBadge status={job.status} />
+        </td>
+
+        <td className={`${tableCellClass} ${colDeadlineClass}`}>
+          <div>{formatDeadline(job.deadline)}</div>
+          <div className="text-xs text-muted-foreground">
+            {job.postedAgo}
+          </div>
+        </td>
+
+        <td className={tableCellClass}>
+          <JobRowActions isClosed={job.isClosed} job={job} />
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
+
             </table>
           </div>
 
           {/* Mobile stacked cards */}
           <div className="divide-y md:hidden">
-            {jobListings.map((job: TJobListing) => (
+            {
+              
+            jobs.map((job: TJobListing) => (
               <div key={job._id} className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div>

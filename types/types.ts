@@ -28,6 +28,7 @@ export type TJobData = {
   description: string
   salaryFrequency: string
   title: string
+  userId:string
   status: TJobStatus
   workMode: TJobWorkMode
   applicants: number

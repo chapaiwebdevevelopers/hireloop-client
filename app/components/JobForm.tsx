@@ -26,6 +26,7 @@ import {
   WORK_MODES,
 } from '@/lib/constants'
 import { chipLabelClass, inputLabelClass } from '@/lib/styles'
+import { useSession } from '@/lib/auth-client'
 
 const requiredMark = <span className="text-destructive"> *</span>
 
@@ -59,11 +60,13 @@ export function JobForm({
   const [jobData, setJobData] = useState<TJobData>(initialData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-
+    const {data:session}=useSession()
+  console.log(session?.user)
   // Generic field setter, keeps numbers as real numbers
   const setField = <K extends keyof TJobData>(key: K, value: TJobData[K]) => {
     setJobData((prev) => ({ ...prev, [key]: value }))
   }
+  
 
   // One onChange handler for all text & number inputs/textareas
   const handleChange = (
@@ -74,6 +77,7 @@ export function JobForm({
       ...prev,
       // number inputs come through as strings → convert them here
       [name]: type === 'number' ? Number(value) || 0 : value,
+      
     }))
   }
 
@@ -84,6 +88,10 @@ export function JobForm({
     try {
       // jobData is already collected & typed via useState — no FormData needed
       console.log('Job form data:', jobData)
+      // jobData.userId = session?.user?.id
+     Object.assign(jobData, {
+  userId: session?.user?.id,
+})
       const result: TJobActionResult = isEdit
         ? await updateJob(jobId!, jobData)
         : await createJob(jobData)

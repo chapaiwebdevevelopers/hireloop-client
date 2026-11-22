@@ -1,7 +1,9 @@
 import { JobForm } from '@/app/components/JobForm'
+import { useSession } from '@/lib/auth-client'
 import { pageContainerClass } from '@/lib/styles'
 
 const NewJobPage = () => {
+
   return (
     <div className={pageContainerClass}>
       {/* Page header */}

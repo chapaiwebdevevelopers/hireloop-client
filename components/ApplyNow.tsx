@@ -7,6 +7,7 @@ import { TApplyJob, TJobData } from "@/types/types"
 import { toast } from "@/components/ui/toast"
 import { ApplyToJob } from "@/lib/actions/job"
 import { CountAppliedJob } from "@/lib/api/jobs"
+import { getPremiumUserById } from "@/lib/api/premiumUsers"
 
 const ApplyNowButton = ({ job }: { job: TJobData }) => {
   const { data: session } = useSession()
@@ -18,11 +19,13 @@ const ApplyNowButton = ({ job }: { job: TJobData }) => {
       router.push(`/sign-in/?redirectTo=/jobs/${job._id}`)
       return
     } else if (user.role === "seeker") {
+      const premiumUserInfo = await getPremiumUserById(user.id)
+      console.log("Premium UserInfo",premiumUserInfo)
       // check number of Applied by this user
       const CountJobByUser = await CountAppliedJob(`id=${user?.id}`)
       console.log("CountJobByUser:",CountJobByUser)
       //less more than 10 and not premium user
-      if (CountJobByUser.count >= 10) {
+      if (!premiumUserInfo.premium && CountJobByUser.count >= 10) {
         // redirect to payment page
         router.push("/payment")
         return

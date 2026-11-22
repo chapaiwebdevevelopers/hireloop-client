@@ -7,6 +7,12 @@ export const getJobs = async (query = ''): Promise<TJobListing[]> => {
 
   return jobs;
 };
+/** get all jobs by user */
+export const getAllJobsByUser = async (id: string): Promise<TJobListing> => {
+  const res = await fetch(`${API_BASE_URL}/jobs/users/${id}`);
+ 
+  return res.json();
+};
 
 /** Returns a single job, or null when the id is unknown / the API fails */
 export const getJobsById = async (id: string): Promise<TJobListing | null> => {
