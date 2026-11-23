@@ -32,12 +32,12 @@ const JobsArchivePage = async ({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) => {
-  console.log("searchParam:",searchParams)
+  // console.log("searchParam:",searchParams)
   const search = await searchParams;
-    console.log("Search:",search)
+    // console.log("Search:",search)
   // Existing pattern: forward the URL query to the API unchanged
   const urlSearch = new URLSearchParams();
-  console.log("urlSearch",urlSearch)
+  // console.log("urlSearch",urlSearch)
 
  Object.entries(search).forEach(([key, value]) => {
     asArray(value).forEach((entry) => {
@@ -46,9 +46,9 @@ const JobsArchivePage = async ({
   });
  
   const query = urlSearch.toString();
-  console.log("queary",query)
+  // console.log("queary",query)
   const searchInfo = await getJobs(query);
-   console.log("searchInfo",searchInfo)
+  //  console.log("searchInfo",searchInfo)
 
   // Counts source: an unfiltered fetch so every filter item always shows
   // its full count, even while a filter/sort/page is active (frontend-only)
@@ -57,9 +57,9 @@ const JobsArchivePage = async ({
   // ---------- frontend-only logic (no backend changes) ----------
 
   const searchTerm = (asArray(search.search)[0] ?? "").toLowerCase();
-  console.log("searchTerm",searchTerm)
+  // console.log("searchTerm",searchTerm)
   const sort = isSortValue(asArray(search.sort)[0]);
-  console.log("sort",sort)
+  // console.log("sort",sort)
  
   const filteredJobs = searchInfo
     .filter((job) =>
@@ -97,7 +97,7 @@ const JobsArchivePage = async ({
     Math.max(Number(asArray(search.page)[0])  || 1, 1),
     totalPages,
   );
-  console.log()
+  
   const visibleJobs = sortedJobs.slice(
     (currentPage - 1) * JOBS_PER_PAGE,
     currentPage * JOBS_PER_PAGE,

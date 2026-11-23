@@ -44,6 +44,7 @@ function Chip({
 }
 
 export function SingleCard({ job }: TSingleCardProps) {
+  console.log("job",job)
   // Frontend-only toggle state for the bookmark icon
   const [bookmarked, setBookmarked] = useState(false);
 

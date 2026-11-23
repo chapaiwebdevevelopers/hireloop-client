@@ -4,7 +4,6 @@ import {
   TApplyJob,
   TApplication,
   TApplicationStatus,
-  TRawApplication,
 } from "@/types/types"
 import { API_BASE_URL } from "@/lib/api-client"
 
@@ -60,6 +59,7 @@ export const ApplyToJob = async (data: TApplyJob) => {
 const APPLICATION_STATUSES: TApplicationStatus[] = [
   "Applied",
   "Review",
+  "interviews",
   "Shortlisted",
   "Rejected",
   "Offered",
@@ -96,7 +96,7 @@ const dateFromObjectId = (id?: string): Date | null => {
  * Resolves the moment the application was created. Newer records store
  * `appliedAt`; older ones only have the creation time inside the ObjectId.
  */
-const resolveAppliedAt = (app: TRawApplication): Date => {
+const resolveAppliedAt = (app: Partial<TApplication>): Date => {
   const parsed = app.appliedAt ? new Date(app.appliedAt) : null
   if (parsed && !Number.isNaN(parsed.getTime())) return parsed
   return dateFromObjectId(app._id) ?? new Date()
@@ -107,13 +107,15 @@ const resolveAppliedAt = (app: TRawApplication): Date => {
  * and may not have `archived`; the seeded records use `title`/`company`/
  * `appliedAgo`/`archived`. Normalize both into one display shape.
  */
-const normalizeApplication = (app: TRawApplication): TApplication => {
+const normalizeApplication = (app: Partial<TApplication>): TApplication => {
   return {
-    _id: app._id,
+    _id: app._id || "",
     id: app.id,
     jobId: app.jobId,
-    userId: app.userId,
-    email: app.email,
+    userId: app.userId || "",
+    email: app.email || "",
+    name: app.name || app.applicantName,
+    applicantName: app.applicantName || app.name,
     title: app.title?.trim() || app.jobTitle?.trim() || "Untitled job",
     company:
       app.company?.trim() || app.companyName?.trim() || "Unknown company",
@@ -122,6 +124,7 @@ const normalizeApplication = (app: TRawApplication): TApplication => {
     status: normalizeStatus(app.status),
     archived: app.archived ?? false,
     appliedAt: resolveAppliedAt(app).toISOString(),
+    resumeUrl: app.resumeUrl,
   }
 }
 
@@ -138,7 +141,7 @@ export const getApplication = async (userapp = ""): Promise<TApplication[]> => {
     const data = await res.json()
     if (!Array.isArray(data)) return []
 
-    return data.map((app: TRawApplication) => normalizeApplication(app))
+    return data.map((app: Partial<TApplication>) => normalizeApplication(app))
   } catch {
     return []
   }

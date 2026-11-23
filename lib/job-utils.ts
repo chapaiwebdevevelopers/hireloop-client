@@ -84,6 +84,8 @@ export const isSortValue = (value: string | undefined): TSortValue =>
  * TJobData shape — used to prefill edit forms.
  */
 export const toJobData = (job: TJobListing): TJobData => ({
+  _id: job._id,
+  userId: job.userId,
   title: job.title,
   companyName: job.companyName,
   jobCategory: job.jobCategory,

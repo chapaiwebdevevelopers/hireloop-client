@@ -37,6 +37,7 @@ const PAGE_SIZE = 5
 const statusBadgeClass: Record<TApplicationStatus, string> = {
   Applied: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   Review: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  interviews: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
   Shortlisted: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   Rejected: "bg-destructive/10 text-destructive",
   Offered: "bg-violet-500/10 text-violet-600 dark:text-violet-400",

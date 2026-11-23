@@ -37,7 +37,7 @@ export const JOB_STATUSES: TJobStatus[] = ["Active", "Expired", "Draft"];
 
 /** Default state used to initialise & reset job forms */
 export const INITIAL_JOB_DATA: TJobData = {
-  userId:"",
+  userId: "",
   title: "",
   companyName: "",
   jobCategory: "",

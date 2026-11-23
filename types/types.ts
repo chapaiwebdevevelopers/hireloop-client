@@ -14,7 +14,7 @@ export type TJobWorkMode = "Remote" | "Hybrid" | "On-site"
  * the API layer and the listings table.
  */
 export type TJobData = {
-  _id: string
+  _id?: string
   companyName: string
   deadline: string
   jobCategory: string
@@ -53,7 +53,7 @@ export type TJobActionResult = {
 
 /** Lifecycle of a job application */
 export type TApplicationStatus =
-  "Applied" | "Review" | "Shortlisted" | "Rejected" | "Offered"
+  "Applied" | "Review" | "interviews"| "Shortlisted" | "Rejected" | "Offered"
 
 /** Payload written to the API when a seeker applies for a job */
 export type TApplyJob = {
@@ -71,35 +71,16 @@ export type TApplyJob = {
 }
 
 /**
- * Application row exactly as it comes back from the API.
- * Older records were saved with a different shape, so every display
- * field is optional here and normalized into `TApplication` on read.
+ * Unified application row used across the application and API
  */
-export type TRawApplication = {
-  _id: string
-  id?: number
-  userId: string
-  email: string
-  title?: string
-  company?: string
-  jobTitle?: string
-  companyName?: string
-  jobType?: string
-  workMode?: string
-  appliedAt?: string
-  status?: string
-  archived?: boolean
-  Deadline?: string
-  jobId?: string
-}
-
-/** Normalized application row used by the UI */
 export type TApplication = {
   _id: string
   id?: number
   jobId?: string
   userId: string
   email: string
+  name?: string
+  applicantName?: string
   title: string
   company: string
   jobType: string
@@ -107,4 +88,9 @@ export type TApplication = {
   status: TApplicationStatus
   archived: boolean
   appliedAt: string
+  resumeUrl?: string
+  Deadline?: string
+  // Legacy aliases for backward compatibility with older database documents
+  jobTitle?: string
+  companyName?: string
 }

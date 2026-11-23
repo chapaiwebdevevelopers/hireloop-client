@@ -55,7 +55,7 @@ export function JobForm({
   submitLabel,
 }: JobFormProps) {
   const isEdit = Boolean(jobId)
-
+ console.log("jobId",jobId)
   // Whole form lives in one state object — every field is controlled
   const [jobData, setJobData] = useState<TJobData>(initialData)
   const [isSubmitting, setIsSubmitting] = useState(false)

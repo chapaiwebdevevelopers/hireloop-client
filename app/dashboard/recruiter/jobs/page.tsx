@@ -35,7 +35,7 @@ import {
   colApplicantsClass,
   colDeadlineClass,
 } from "@/lib/styles";
-import { getAllJobsByUser, getJobs } from "@/lib/api/jobs";
+import {  getJobs } from "@/lib/api/jobs";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
@@ -60,7 +60,9 @@ const JobRowActions = ({
         <Ellipsis />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
-        <DropdownMenuItem>View applicants</DropdownMenuItem>
+        <DropdownMenuItem>
+          <Link href={`./jobs/${job._id}/applications`}>View applicants</Link>
+        </DropdownMenuItem>
         <DropdownMenuItem>
           <Link href={`/jobs/${job._id}`}>Visit Job</Link>
         </DropdownMenuItem>
@@ -81,7 +83,7 @@ const ManageJobsPage = async () => {
     console.log("session:",session)
   // const jobListings = await getAllJobsByUser(session?.user.id);
   const userId = session?.user.id;
-  const jobListings = userId ? await getAllJobsByUser(userId) : [];
+  const jobListings = userId ? await getJobs(userId) : [];
   const jobs: TJobListing[] = Array.isArray(jobListings)
     ? jobListings
     : [jobListings];
