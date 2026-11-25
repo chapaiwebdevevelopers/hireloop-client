@@ -43,7 +43,7 @@ const menuItemsByRole = {
     { id: "settings", name: "Settings", url: "/dashboard/recruiter/settings", icon: Settings },
   ],
   admin: [
-    { id: "dashboard", name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { id: "dashboard", name: "Dashboard", url: "/dashboard/admin", icon: LayoutDashboard },
     { id: "users", name: "Users", url: "/dashboard/admin/users", icon: Users },
     { id: "companies", name: "Companies", url: "/dashboard/companies", icon: Building2 },
     { id: "jobs", name: "Jobs", url: "/dashboard/jobs", icon: Briefcase },
@@ -55,6 +55,7 @@ const menuItemsByRole = {
 export function DashboardSidebar() {
   const { data: session, isPending } = useSession()
   const role = (session?.user?.role || "seeker") as keyof typeof menuItemsByRole;
+  console.log(role)
   return (
     <Sidebar>
       <SidebarHeader />

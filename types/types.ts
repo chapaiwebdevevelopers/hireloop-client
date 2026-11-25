@@ -95,3 +95,15 @@ export type TApplication = {
   jobTitle?: string
   companyName?: string
 }
+export type TUserRole = "Admin" | "Recruiter" | "Seeker"
+export type TUserAccountStatus = "Active" | "Suspended"
+
+export interface TAdminUserItem {
+  id: string
+  name: string
+  email: string
+  role: TUserRole
+  joinDate: string
+  status: TUserAccountStatus
+  avatar?: string
+}

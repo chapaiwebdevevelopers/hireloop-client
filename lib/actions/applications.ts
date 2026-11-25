@@ -1,5 +1,7 @@
 import { API_BASE_URL } from "../api-client"
 
+
+// recruiter application Status update Api
 export const updateApplicationStatus = async(id:string,data:{status:string})=>{
     const response= await fetch(`${API_BASE_URL}/applications/${id}`,{
         method:"PATCH",

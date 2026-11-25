@@ -5,7 +5,7 @@ import { TJobData, TJobListing } from "@/types/types"
  * tables, cards and detail pages.
  */
 
-const MONTH_NAMES = [
+export const MONTH_NAMES = [
   "Jan",
   "Feb",
   "Mar",
