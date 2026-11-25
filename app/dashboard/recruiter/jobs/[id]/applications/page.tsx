@@ -1,6 +1,6 @@
 "use client"
 
-import React, { use, useMemo, useState } from "react"
+import React, { use, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import {
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
   Clock,
   Copy,
   Eye,
+  Loader2,
   Mail,
   MoreHorizontal,
   Search,
@@ -54,47 +55,7 @@ import {
 } from "@/lib/styles"
 import { timeAgo } from "@/lib/job-utils"
 import type { TApplicationStatus, TApplyJob } from "@/types/types"
-import { updateApplicationStatus } from "@/lib/actions/applications"
-
-/**
- * ============================================================================
- * DATABASE & BACKEND INTEGRATION INSTRUCTIONS (MongoDB / Express or Next.js API)
- * ============================================================================
- *
- * 1. BACKEND SCHEMA (MongoDB / Mongoose):
- *    Collection: `applications`
- *    Schema matching TApplyJob:
- *    {
- *      jobId: String,          // Matches the Job _id from route params
- *      userId: String,         // Seeker's user ID
- *      email: String,          // Applicant's contact email
- *      title: String,          // Job title applied for
- *      company: String,        // Company name
- *      jobType: String,        // e.g. 'Full-time'
- *      workMode: String,       // e.g. 'Remote', 'Hybrid', 'On-site'
- *      status: String,         // 'Applied' | 'Review' | 'interviews' | 'Shortlisted' | 'Rejected' | 'Offered'
- *      Deadline: String,       // Job application deadline
- *      archived: Boolean,      // Application archive state
- *      appliedAt: String       // ISO timestamp
- *    }
- *
- * 2. BACKEND API ENDPOINTS NEEDED:
- *    - GET /application?jobId=:id
- *      Returns an array of TApplyJob matching the job ID.
- *
- *    - PATCH /application/:userId (or application _id)
- *      Body: { status: "Review" }
- *      Updates the status of that specific application in MongoDB.
- *
- * 3. CONNECTING THIS COMPONENT:
- *    - Replace STATIC_APPLICANTS with a `useEffect` fetch:
- *      useEffect(() => {
- *        fetch(`http://localhost:5000/application?jobId=${id}`)
- *          .then((res) => res.json())
- *          .then((data: TApplyJob[]) => setApplicants(data))
- *      }, [id])
- * ============================================================================
- */
+import { getApplicantsByJobId, updateApplicationStatus } from "@/lib/actions/job"
 
 // Available recruitment statuses
 const STATUS_OPTIONS: TApplicationStatus[] = [
@@ -148,114 +109,6 @@ const statusBadgeConfig: Record<
   },
 }
 
-// Static Demo Data strictly adhering to TApplyJob
-const STATIC_APPLICANTS: TApplyJob[] = [
-  {
-    jobId: "job_01",
-    userId: "usr_101",
-    email: "sarah.jenkins@example.com",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Full-time",
-    workMode: "Remote",
-    status: "Applied",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 53 * 60 * 1000).toISOString(), // 53 minutes ago
-  },
-  {
-    jobId: "job_01",
-    userId: "usr_102",
-    email: "alex.rivera@techmail.io",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Full-time",
-    workMode: "Hybrid",
-    status: "Review",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-  },
-  {
-    jobId: "job_01",
-    userId: "usr_103",
-    email: "david.chen@devhub.com",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Contract",
-    workMode: "Remote",
-    status: "interviews",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-  },
-  {
-    jobId: "job_01",
-    userId: "usr_104",
-    email: "emily.watson@designpro.org",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Full-time",
-    workMode: "On-site",
-    status: "Shortlisted",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-  },
-  {
-    jobId: "job_01",
-    userId: "usr_105",
-    email: "m.brown@cloudcorp.net",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Part-time",
-    workMode: "Hybrid",
-    status: "Rejected",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-  },
-  {
-    jobId: "job_01",
-    userId: "usr_106",
-    email: "sophia.m@codeworks.io",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Full-time",
-    workMode: "Remote",
-    status: "Offered",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-  },
-  {
-    jobId: "job_01",
-    userId: "usr_107",
-    email: "jwilson@stackflow.dev",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Full-time",
-    workMode: "Remote",
-    status: "Applied",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 53 * 60 * 1000).toISOString(), // 53 minutes ago
-  },
-  {
-    jobId: "job_01",
-    userId: "usr_108",
-    email: "olivia.t@uxcreatives.com",
-    title: "Senior Full-Stack Developer",
-    company: "Hireloop Tech",
-    jobType: "Full-time",
-    workMode: "Hybrid",
-    status: "interviews",
-    Deadline: "2026-06-30",
-    archived: false,
-    appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-  },
-]
-
 function getCandidateInitials(email: string, userId: string): string {
   if (email && email.includes("@")) {
     return email.split("@")[0].slice(0, 2).toUpperCase()
@@ -269,9 +122,10 @@ export default function JobApplicationsPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
- console.log("id",id)
-  // 1. Applicants State typed with TApplyJob
-  const [applicants, setApplicants] = useState<TApplyJob[]>(STATIC_APPLICANTS)
+
+  // 1. Applicants State fetched from MongoDB by jobId (STATIC_APPLICANTS removed)
+  const [Applicants, setApplicants] = useState<TApplyJob[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   // 2. Search & Filter State
   const [search, setSearch] = useState("")
@@ -280,10 +134,43 @@ export default function JobApplicationsPage({
   // 3. Candidate Details Modal State
   const [selectedApplicant, setSelectedApplicant] = useState<TApplyJob | null>(null)
 
+  // Fetch applicants for the specific jobId using getApplicantsByJobId
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchApplicants = async () => {
+      setIsLoading(true)
+      try {
+        const data = await getApplicantsByJobId(id)
+        if (isMounted) {
+          setApplicants(Array.isArray(data) ? data : [])
+        }
+      } catch (error) {
+        console.error("Failed to fetch applicants for jobId:", id, error)
+        toast.add({
+          title: "Failed to Load Applicants",
+          description: "Could not retrieve applicants from the server.",
+        })
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    if (id) {
+      fetchApplicants()
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, [id])
+
   // 4. Dynamic Status Counts for Filter Pills
-     const statusCounts = useMemo(() => {
+  const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {
-      all: applicants.length,
+      all: Applicants.length,
       Applied: 0,
       Review: 0,
       interviews: 0,
@@ -292,49 +179,53 @@ export default function JobApplicationsPage({
       Offered: 0,
     }
 
-    applicants.forEach((app) => {
+    Applicants.forEach((app) => {
       if (counts[app.status] !== undefined) {
         counts[app.status]++
       }
     })
 
     return counts
-  }, [applicants])
+  }, [Applicants])
 
   // 5. Filtered Applicants List (Search by email, userId, or title)
   const filteredApplicants = useMemo(() => {
-    return applicants.filter((applicant) => {
+    return Applicants.filter((applicant) => {
       const query = search.trim().toLowerCase()
       const matchesSearch =
         query === "" ||
-        applicant.userId.toLowerCase().includes(query) ||
-        applicant.email.toLowerCase().includes(query) ||
-        applicant.title.toLowerCase().includes(query)
+        (applicant.userId && applicant.userId.toLowerCase().includes(query)) ||
+        (applicant.email && applicant.email.toLowerCase().includes(query)) ||
+        (applicant.title && applicant.title.toLowerCase().includes(query))
 
       const matchesStatus =
         selectedFilter === "all" || applicant.status === selectedFilter
 
       return matchesSearch && matchesStatus
     })
-  }, [applicants, search, selectedFilter])
+  }, [Applicants, search, selectedFilter])
 
-  // 6. Update Status Handler
+  // 6. Update Status Handler (Optimistic UI + Database Patch)
   const handleStatusChange = async (
+    applicationId: string | undefined,
     userId: string,
     newStatus: TApplicationStatus,
     identifier: string
   ) => {
-  
-    const updateStatus = await updateApplicationStatus(userId, { status: newStatus })
-    console.log("userId:",userId)
-
+    // 1. Optimistically update local state
     setApplicants((prev) =>
       prev.map((app) =>
-        app.userId === userId ? { ...app, status: newStatus } : app
+        (applicationId && app._id === applicationId) || app.userId === userId
+          ? { ...app, status: newStatus }
+          : app
       )
     )
 
-    if (selectedApplicant && selectedApplicant.userId === userId) {
+    if (
+      selectedApplicant &&
+      ((applicationId && selectedApplicant._id === applicationId) ||
+        selectedApplicant.userId === userId)
+    ) {
       setSelectedApplicant((prev) =>
         prev ? { ...prev, status: newStatus } : null
       )
@@ -344,13 +235,12 @@ export default function JobApplicationsPage({
       title: "Status Updated",
       description: `Candidate (${identifier}) status changed to "${statusBadgeConfig[newStatus].label}".`,
     })
-    
-    // TODO: Connect your backend API when ready:
-    // await fetch(`http://localhost:5000/application/${userId}`, {
-    //   method: "PATCH",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ status: newStatus }),
-    // })
+
+    // 2. Persist update to database
+    const targetId = applicationId || userId
+    if (targetId) {
+      await updateApplicationStatus(targetId, newStatus)
+    }
   }
 
   // 7. Context Management Actions
@@ -372,7 +262,12 @@ export default function JobApplicationsPage({
   }
 
   const handleQuickScheduleInterview = (applicant: TApplyJob) => {
-    handleStatusChange(applicant.userId, "interviews", applicant.userId)
+    handleStatusChange(
+      applicant._id,
+      applicant.userId,
+      "interviews",
+      applicant.userId
+    )
     toast.add({
       title: "Interview Scheduled",
       description: `Candidate (${applicant.userId}) moved to Interviews stage.`,
@@ -421,6 +316,7 @@ export default function JobApplicationsPage({
             variant="outline"
             size="sm"
             onClick={handleCopyAllEmails}
+            disabled={filteredApplicants.length === 0}
             className="text-xs h-8 gap-1.5"
           >
             <Copy className="size-3.5" />
@@ -486,7 +382,7 @@ export default function JobApplicationsPage({
                 Applications List
               </CardTitle>
               <CardDescription className="text-xs">
-                Showing {filteredApplicants.length} of {applicants.length} total applicant(s)
+                Showing {filteredApplicants.length} of {Applicants.length} total applicant(s)
               </CardDescription>
             </div>
 
@@ -530,7 +426,12 @@ export default function JobApplicationsPage({
         </CardHeader>
 
         <CardContent className="p-0">
-          {filteredApplicants.length === 0 ? (
+          {isLoading ? (
+            <div className="py-16 text-center">
+              <Loader2 className="size-6 animate-spin mx-auto text-primary mb-2" />
+              <p className="text-xs text-muted-foreground">Loading applicants from database...</p>
+            </div>
+          ) : filteredApplicants.length === 0 ? (
             <div className="py-12 px-4 text-center">
               <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground mb-2">
                 <Users className="size-5" />
@@ -539,19 +440,23 @@ export default function JobApplicationsPage({
                 No Applicants Found
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                No candidate matches your current search or filter criteria.
+                {Applicants.length === 0
+                  ? "No candidates have applied for this job yet."
+                  : "No candidate matches your current search or filter criteria."}
               </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSearch("")
-                  setSelectedFilter("all")
-                }}
-                className="mt-3 text-xs"
-              >
-                Clear Search &amp; Filters
-              </Button>
+              {(search || selectedFilter !== "all") && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSearch("")
+                    setSelectedFilter("all")
+                  }}
+                  className="mt-3 text-xs"
+                >
+                  Clear Search &amp; Filters
+                </Button>
+              )}
             </div>
           ) : (
             <>
@@ -572,12 +477,13 @@ export default function JobApplicationsPage({
                   </thead>
                   <tbody className="divide-y">
                     {filteredApplicants.map((applicant) => {
-                      const currentBadge = statusBadgeConfig[applicant.status]
+                      const currentBadge = statusBadgeConfig[applicant.status] || statusBadgeConfig.Applied
                       const initials = getCandidateInitials(applicant.email, applicant.userId)
+                      const itemKey = applicant._id || applicant.userId
 
                       return (
                         <tr
-                          key={applicant.userId}
+                          key={itemKey}
                           className="hover:bg-muted/30 transition-colors group"
                         >
                           {/* 1. Applicant (User ID & Title) */}
@@ -597,9 +503,13 @@ export default function JobApplicationsPage({
                                   Candidate #{applicant.userId}
                                 </button>
                                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                  <span>{applicant.title}</span>
-                                  <span>•</span>
-                                  <span className="capitalize">{applicant.workMode}</span>
+                                  <span>{applicant.title || "Applicant"}</span>
+                                  {applicant.workMode && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="capitalize">{applicant.workMode}</span>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -625,21 +535,23 @@ export default function JobApplicationsPage({
                             </div>
                           </td>
 
-                          {/* 3. Applied (53 minutes ago, 2 days ago) */}
+                          {/* 3. Applied */}
                           <td className={tableCellClass}>
                             <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                               <Clock className="size-3.5 text-muted-foreground/70" />
                               <span className="font-medium text-foreground/90">
-                                {timeAgo(applicant.appliedAt)}
+                                {applicant.appliedAt ? timeAgo(applicant.appliedAt) : "Recently"}
                               </span>
                             </div>
-                            <span className="text-[11px] text-muted-foreground/60 block mt-0.5">
-                              {new Date(applicant.appliedAt).toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                                year: "numeric",
-                              })}
-                            </span>
+                            {applicant.appliedAt && (
+                              <span className="text-[11px] text-muted-foreground/60 block mt-0.5">
+                                {new Date(applicant.appliedAt).toLocaleDateString("en-US", {
+                                  month: "short",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </span>
+                            )}
                           </td>
 
                           {/* 4. Status */}
@@ -655,7 +567,7 @@ export default function JobApplicationsPage({
                             </Badge>
                           </td>
 
-                          {/* 5. Update Status (applied, review, interviews, shortlisted, rejected, offered) */}
+                          {/* 5. Update Status */}
                           <td className={tableCellClass}>
                             <DropdownMenu>
                               <DropdownMenuTrigger
@@ -692,6 +604,7 @@ export default function JobApplicationsPage({
                                       key={statusKey}
                                       onClick={() =>
                                         handleStatusChange(
+                                          applicant._id,
                                           applicant.userId,
                                           statusKey,
                                           applicant.userId
@@ -788,6 +701,7 @@ export default function JobApplicationsPage({
                                   <DropdownMenuItem
                                     onClick={() =>
                                       handleStatusChange(
+                                        applicant._id,
                                         applicant.userId,
                                         "Rejected",
                                         applicant.userId
@@ -827,11 +741,12 @@ export default function JobApplicationsPage({
               {/* Mobile Stacked Card View */}
               <div className="divide-y md:hidden">
                 {filteredApplicants.map((applicant) => {
-                  const currentBadge = statusBadgeConfig[applicant.status]
+                  const currentBadge = statusBadgeConfig[applicant.status] || statusBadgeConfig.Applied
                   const initials = getCandidateInitials(applicant.email, applicant.userId)
+                  const itemKey = applicant._id || applicant.userId
 
                   return (
-                    <div key={applicant.userId} className="space-y-3 p-4">
+                    <div key={itemKey} className="space-y-3 p-4">
                       {/* Name and Status Header */}
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2.5">
@@ -862,7 +777,7 @@ export default function JobApplicationsPage({
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="size-3.5" />
-                          <span>Applied {timeAgo(applicant.appliedAt)}</span>
+                          <span>Applied {applicant.appliedAt ? timeAgo(applicant.appliedAt) : "Recently"}</span>
                         </div>
 
                         <button
@@ -901,6 +816,7 @@ export default function JobApplicationsPage({
                                 key={statusKey}
                                 onClick={() =>
                                   handleStatusChange(
+                                    applicant._id,
                                     applicant.userId,
                                     statusKey,
                                     applicant.userId
@@ -954,7 +870,7 @@ export default function JobApplicationsPage({
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <h4 className="font-bold text-foreground text-sm truncate">
-                    {selectedApplicant.title}
+                    {selectedApplicant.title || "Applicant"}
                   </h4>
                   <p className="text-xs text-muted-foreground font-mono truncate">
                     {selectedApplicant.email}
@@ -962,12 +878,12 @@ export default function JobApplicationsPage({
                   <div className="mt-1 flex items-center gap-2">
                     <Badge
                       variant="outline"
-                      className={`text-[10px] px-2 py-0.5 rounded-full ${statusBadgeConfig[selectedApplicant.status].badgeClass}`}
+                      className={`text-[10px] px-2 py-0.5 rounded-full ${(statusBadgeConfig[selectedApplicant.status] || statusBadgeConfig.Applied).badgeClass}`}
                     >
-                      {statusBadgeConfig[selectedApplicant.status].label}
+                      {(statusBadgeConfig[selectedApplicant.status] || statusBadgeConfig.Applied).label}
                     </Badge>
                     <span className="text-[11px] text-muted-foreground">
-                      Applied {timeAgo(selectedApplicant.appliedAt)}
+                      Applied {selectedApplicant.appliedAt ? timeAgo(selectedApplicant.appliedAt) : "Recently"}
                     </span>
                   </div>
                 </div>
@@ -989,6 +905,7 @@ export default function JobApplicationsPage({
                         type="button"
                         onClick={() =>
                           handleStatusChange(
+                            selectedApplicant._id,
                             selectedApplicant.userId,
                             statusKey,
                             selectedApplicant.userId
@@ -1016,42 +933,54 @@ export default function JobApplicationsPage({
                     #{selectedApplicant.userId}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Job Title:</span>
-                  <span className="font-medium text-foreground">
-                    {selectedApplicant.title}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Company:</span>
-                  <span className="text-foreground">
-                    {selectedApplicant.company}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Work Mode:</span>
-                  <span className="capitalize text-foreground font-medium">
-                    {selectedApplicant.workMode}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Job Type:</span>
-                  <span className="capitalize text-foreground">
-                    {selectedApplicant.jobType}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Deadline:</span>
-                  <span className="text-foreground">
-                    {selectedApplicant.Deadline}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Applied:</span>
-                  <span className="text-foreground">
-                    {timeAgo(selectedApplicant.appliedAt)} ({new Date(selectedApplicant.appliedAt).toLocaleDateString()})
-                  </span>
-                </div>
+                {selectedApplicant.title && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Job Title:</span>
+                    <span className="font-medium text-foreground">
+                      {selectedApplicant.title}
+                    </span>
+                  </div>
+                )}
+                {selectedApplicant.company && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Company:</span>
+                    <span className="text-foreground">
+                      {selectedApplicant.company}
+                    </span>
+                  </div>
+                )}
+                {selectedApplicant.workMode && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Work Mode:</span>
+                    <span className="capitalize text-foreground font-medium">
+                      {selectedApplicant.workMode}
+                    </span>
+                  </div>
+                )}
+                {selectedApplicant.jobType && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Job Type:</span>
+                    <span className="capitalize text-foreground">
+                      {selectedApplicant.jobType}
+                    </span>
+                  </div>
+                )}
+                {selectedApplicant.Deadline && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Deadline:</span>
+                    <span className="text-foreground">
+                      {selectedApplicant.Deadline}
+                    </span>
+                  </div>
+                )}
+                {selectedApplicant.appliedAt && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Applied:</span>
+                    <span className="text-foreground">
+                      {timeAgo(selectedApplicant.appliedAt)} ({new Date(selectedApplicant.appliedAt).toLocaleDateString()})
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Modal Actions */}

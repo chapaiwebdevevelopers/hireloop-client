@@ -25,6 +25,7 @@ export function DeleteJobsDialog({ job }: { job: TJobListing }) {
   const router = useRouter()
   // console.log("dialogJob",job)
   const handleDelete = async () => {
+    if (!job._id) return
     const res = await deleteJob(job._id)
     console.log("try delete", job, res)
     if (res.deletedCount) {

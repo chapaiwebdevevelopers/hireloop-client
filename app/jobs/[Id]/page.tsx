@@ -27,6 +27,9 @@ import { Badge } from "@/components/ui/badge";
 
 import { Separator } from "@/components/ui/separator";
 import ApplyNowButton from "@/components/ApplyNow";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { checkUserApplied } from "@/lib/actions/job";
 
 /**
  * Job details page — matches the reference design:
@@ -88,6 +91,14 @@ const JobDetailsPage = async ({
   const job: TJobListing | null = await getJobsById(Id);
 
   if (!job) notFound();
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  const initialApplied =
+    session?.user?.id && job._id
+      ? await checkUserApplied(session.user.id, job._id)
+      : false;
 
   const responsibilities = toBulletItems(job.responsibilities);
   const requirements = toBulletItems(job.requirements);
@@ -258,7 +269,7 @@ const JobDetailsPage = async ({
             </div>
 
             <Separator />
-              <ApplyNowButton job={job}></ApplyNowButton>
+            <ApplyNowButton job={job} initialApplied={initialApplied} />
 
             <p className="text-center text-xs text-muted-foreground">
               {job.status === "Active"

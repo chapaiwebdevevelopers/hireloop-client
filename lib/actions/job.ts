@@ -56,6 +56,76 @@ export const ApplyToJob = async (data: TApplyJob) => {
   return res.json()
 }
 
+/**
+ * Get all applicants for a specific jobId (applications submitted via ApplyToJob)
+ */
+export const getApplicantsByJobId = async (
+  jobId: string
+): Promise<TApplyJob[]> => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/application?jobId=${jobId}`, {
+      cache: "no-store",
+    })
+    if (!res.ok) return []
+
+    const data = await res.json()
+    if (!Array.isArray(data)) return []
+
+    return data
+  } catch (error) {
+    console.error("Error fetching applicants by jobId:", error)
+    return []
+  }
+}
+
+/** Alias for getApplicantsByJobId */
+export const getApplyJobByJobId = getApplicantsByJobId
+
+/**
+ * Update application status in the database
+ */
+export const updateApplicationStatus = async (
+  applicationId: string,
+  status: TApplicationStatus
+) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/application/${applicationId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    })
+    return res.json()
+  } catch (error) {
+    console.error("Error updating application status:", error)
+    return null
+  }
+}
+
+/**
+ * Check if a specific user has already applied for a specific job
+ */
+export const checkUserApplied = async (
+  userId: string,
+  jobId: string
+): Promise<boolean> => {
+  if (!userId || !jobId) return false
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/application?userId=${userId}&jobId=${jobId}`,
+      { cache: "no-store" }
+    )
+    if (!res.ok) return false
+    const data = await res.json()
+    if (!Array.isArray(data)) return false
+    return data.some((app: Partial<TApplyJob>) => app.jobId === jobId)
+  } catch (error) {
+    console.error("Error checking user application:", error)
+    return false
+  }
+}
+
 const APPLICATION_STATUSES: TApplicationStatus[] = [
   "Applied",
   "Review",

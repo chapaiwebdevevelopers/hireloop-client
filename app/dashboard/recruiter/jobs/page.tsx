@@ -38,6 +38,7 @@ import {
 import {  getJobs } from "@/lib/api/jobs";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { API_BASE_URL } from "@/lib/api-client";
 
 
 // Update (opens reusable JobForm in a dialog popup) → Delete (icon) → three-dot overflow menu
@@ -61,7 +62,7 @@ const JobRowActions = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
         <DropdownMenuItem>
-          <Link href={`./jobs/${job._id}/applications`}>View applicants</Link>
+          <Link href={`/dashboard/recruiter/jobs/${job._id}/applications`}>View applicants</Link>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <Link href={`/jobs/${job._id}`}>Visit Job</Link>
@@ -83,11 +84,35 @@ const ManageJobsPage = async () => {
     console.log("session:",session)
   // const jobListings = await getAllJobsByUser(session?.user.id);
   const userId = session?.user.id;
-  const jobListings = userId ? await getJobs(userId) : [];
+  const jobListings = userId ? await getJobs(`userId=${userId}`) : [];
   const jobs: TJobListing[] = Array.isArray(jobListings)
     ? jobListings
     : [jobListings];
   console.log("joblisting data",jobListings)
+
+  // Fetch real applicant counts for each job from MongoDB
+  const applicantCounts = await Promise.all(
+    jobs.map(async (job) => {
+      if (!job._id) return { jobId: "", count: 0 };
+      try {
+        const res = await fetch(`${API_BASE_URL}/application?jobId=${job._id}`, {
+          cache: "no-store",
+        });
+        if (!res.ok) return { jobId: job._id, count: job.applicants || 0 };
+        const data = await res.json();
+        return {
+          jobId: job._id,
+          count: Array.isArray(data) ? data.length : (job.applicants || 0),
+        };
+      } catch {
+        return { jobId: job._id, count: job.applicants || 0 };
+      }
+    })
+  );
+
+  const candidateCountMap = new Map(
+    applicantCounts.map((item) => [item.jobId, item.count])
+  );
 
   return (
     <div className={pageContainerClass}>
@@ -160,7 +185,11 @@ const ManageJobsPage = async () => {
       </td>
     </tr>
   ) : (
-    jobs.map((job: TJobListing) => (
+    jobs.map((job: TJobListing) => {
+      const candidateCount =
+        candidateCountMap.get(job._id || "") ?? (job.applicants || 0);
+
+      return (
       <tr
         key={job._id}
         className="transition-colors hover:bg-muted/30"
@@ -190,7 +219,12 @@ const ManageJobsPage = async () => {
         </td>
 
         <td className={`${tableCellClass} ${colApplicantsClass}`}>
-          {job.applicants} Candidates
+          <Link
+            href={`/dashboard/recruiter/jobs/${job._id}/applications`}
+            className="hover:underline hover:text-primary transition-colors font-medium"
+          >
+            {candidateCount} {candidateCount === 1 ? "Candidate" : "Candidates"}
+          </Link>
         </td>
 
         <td className={tableCellClass}>
@@ -208,7 +242,8 @@ const ManageJobsPage = async () => {
           <JobRowActions isClosed={job.isClosed} job={job} />
         </td>
       </tr>
-    ))
+      );
+    })
   )}
 </tbody>
 
@@ -219,7 +254,11 @@ const ManageJobsPage = async () => {
           <div className="divide-y md:hidden">
             {
               
-            jobs.map((job: TJobListing) => (
+            jobs.map((job: TJobListing) => {
+              const candidateCount =
+                candidateCountMap.get(job._id || "") ?? (job.applicants || 0);
+
+              return (
               <div key={job._id} className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -258,13 +297,17 @@ const ManageJobsPage = async () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {job.applicants} Candidates
-                  </span>
+                  <Link
+                    href={`/dashboard/recruiter/jobs/${job._id}/applications`}
+                    className="text-xs text-muted-foreground hover:underline hover:text-primary font-medium"
+                  >
+                    {candidateCount} {candidateCount === 1 ? "Candidate" : "Candidates"}
+                  </Link>
                   <JobRowActions isClosed={job.isClosed} job={job} />
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </CardContent>
       </Card>

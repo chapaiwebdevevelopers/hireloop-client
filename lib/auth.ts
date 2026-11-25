@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth"
 import { MongoClient } from "mongodb"
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
+import { admin } from "better-auth/plugins"
 
 // In dev, hot-reload re-evaluates this module and a fresh module-level
 // MongoClient would replace the old one — the old topology ends up closed
@@ -43,6 +44,9 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [
+        admin(),
+    ],
   //   Mongodb client Database connection
   database: mongodbAdapter(db, {
     client,

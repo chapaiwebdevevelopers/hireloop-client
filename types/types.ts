@@ -57,6 +57,7 @@ export type TApplicationStatus =
 
 /** Payload written to the API when a seeker applies for a job */
 export type TApplyJob = {
+  _id?: string
   jobId: string
   userId: string
   email: string

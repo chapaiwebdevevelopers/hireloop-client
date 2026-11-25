@@ -44,11 +44,11 @@ const menuItemsByRole = {
   ],
   admin: [
     { id: "dashboard", name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { id: "users", name: "Users", url: "/dashboard/users", icon: Users },
+    { id: "users", name: "Users", url: "/dashboard/admin/users", icon: Users },
     { id: "companies", name: "Companies", url: "/dashboard/companies", icon: Building2 },
     { id: "jobs", name: "Jobs", url: "/dashboard/jobs", icon: Briefcase },
-    { id: "payments", name: "Payments", url: "/dashboard/payments", icon: Landmark },
-    { id: "settings", name: "Settings", url: "/dashboard/settings", icon: Settings },
+    { id: "payments", name: "Payments", url: "/dashboard/admin/payments", icon: Landmark },
+    { id: "settings", name: "Settings", url: "/dashboard/admin/settings", icon: Settings },
   ],
 }
 
