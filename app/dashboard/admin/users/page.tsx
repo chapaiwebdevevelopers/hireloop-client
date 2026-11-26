@@ -1,5 +1,6 @@
 import AdminUsersClient from "@/app/components/admin/AdminUsersClient"
-import { getUsers } from "@/lib/api/premiumUsers"
+import { getUsers } from "@/lib/actions/better-auth-users"
+// import { getUsers } from "@/lib/api/premiumUsers"
 import { MONTH_NAMES } from "@/lib/job-utils"
 import type { TAdminUserItem, TUserRole } from "@/types/types"
 

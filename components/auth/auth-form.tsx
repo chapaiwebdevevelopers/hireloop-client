@@ -71,6 +71,7 @@ export function AuthForm({ mode, onSubmit }: {
     // }
     await onSubmit?.(payload)
     console.log(`[${mode}] form data:`, payload)
+    console.log(payload)
   }
 
   return (

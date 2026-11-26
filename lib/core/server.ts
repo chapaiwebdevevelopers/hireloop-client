@@ -1,5 +1,7 @@
 import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+
+import { headers,  } from "next/headers"
+import { redirect } from "next/navigation"
 
 export const getSession = async()=>{
     "use server"
@@ -7,4 +9,19 @@ export const getSession = async()=>{
         headers: await headers()
     })
     return session
+}
+export const getToken = async()=>{
+    const session =await getSession()
+    if(!session || !session.session?.token){
+        redirect("/unauthorized")
+    }
+    return session.session.token;
+}
+
+export const requireRole = async(role:string) =>{
+    const session = await getSession();
+    if (!session || session.user.role !== role){
+        redirect("/unauthorized")
+    }
+    return session;
 }
