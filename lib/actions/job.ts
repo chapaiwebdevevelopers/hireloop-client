@@ -1,3 +1,5 @@
+"use server"
+
 import {
   TJobData,
   TJobActionResult,
@@ -6,6 +8,9 @@ import {
   TApplicationStatus,
 } from "@/types/types"
 import { API_BASE_URL } from "@/lib/api-client"
+import { getSession } from "../core/server"
+import { getPremiumUserById } from "../api/premiumUsers"
+import { CountAppliedJob } from "../api/jobs"
 
 export const createJob = async (data: TJobData): Promise<TJobActionResult> => {
   const res = await fetch(`${API_BASE_URL}/jobs`, {
@@ -19,6 +24,24 @@ export const createJob = async (data: TJobData): Promise<TJobActionResult> => {
 
   return result
 }
+
+export async function getApplyEligibility() {
+  const session = await getSession()
+  if (!session?.user) return { limitReached: false }
+
+  const userId = session.user.id
+
+  const [premiumUserInfo, countData] = await Promise.all([
+    getPremiumUserById(userId),
+    CountAppliedJob(`id=${userId}`),
+  ])
+
+  const limitReached = !premiumUserInfo?.premium && (countData?.count ?? 0) >= 10
+
+  return { limitReached }
+}
+
+
 
 export const deleteJob = async (jobId: string): Promise<TJobActionResult> => {
   const res = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {

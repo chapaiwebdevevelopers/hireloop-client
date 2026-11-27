@@ -7,9 +7,11 @@ import { useSession } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { TApplyJob, TJobData } from "@/types/types"
 import { toast } from "@/components/ui/toast"
-import { ApplyToJob, checkUserApplied } from "@/lib/actions/job"
-import { CountAppliedJob } from "@/lib/api/jobs"
-import { getPremiumUserById } from "@/lib/api/premiumUsers"
+// import { ApplyToJob, checkUserApplied } from "@/lib/actions/job"
+// import { CountAppliedJob } from "@/lib/api/jobs"
+// import { getPremiumUserById } from "@/lib/api/premiumUsers"
+import { ApplyToJob, checkUserApplied, getApplyEligibility } from "@/lib/actions/job"
+
 
 interface ApplyNowButtonProps {
   job: TJobData
@@ -81,16 +83,23 @@ const ApplyNowButton = ({ job, initialApplied = false }: ApplyNowButtonProps) =>
 
     setIsSubmitting(true)
     try {
-      const premiumUserInfo = await getPremiumUserById(user.id)
+      // const premiumUserInfo = await getPremiumUserById(user.id)
 
-      // Check number of jobs already applied for by this user
-      const CountJobByUser = await CountAppliedJob(`id=${user.id}`)
+      // // Check number of jobs already applied for by this user
+      // const CountJobByUser = await CountAppliedJob(`id=${user.id}`)
 
-      // Non-premium seekers with 10+ applications must upgrade
-      if (!premiumUserInfo?.premium && CountJobByUser?.count >= 10) {
-        router.push("/payment")
-        return
-      }
+      // // Non-premium seekers with 10+ applications must upgrade
+      // if (!premiumUserInfo?.premium && CountJobByUser?.count >= 10) {
+      //   router.push("/payment")
+      //   return
+      // }
+
+const { limitReached } = await getApplyEligibility()
+ if (limitReached) {
+         router.push("/payment")
+         return
+       }
+
 
       // Construct application payload
       const application: TApplyJob = {
